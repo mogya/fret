@@ -1,0 +1,53 @@
+version: '2'
+services:
+  data:
+    image: busybox
+    command: /bin/sh
+    volumes:
+      - /share
+      - ../rails:/rails
+      - ../front:/front
+      - ../log:/log
+      - ../db:/db
+      - ./nginx_dev/app.conf:/etc/nginx/conf.d/app.conf
+      # - ./mysql/app.conf:/etc/mysql/conf.d/app.conf:ro
+  db:
+    image: mdillon/postgis
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /db/postgres/data
+    volumes_from:
+      - data
+  nginx_dev:
+    image: nginx
+    ports:
+     - "80:80"
+    volumes_from:
+      - data
+  rails:
+    build:
+      context: ../rails
+      dockerfile: docker/Dockerfile
+    environment:
+      RAILS_ENV: ${RAILS_ENV}
+      DB_HOST: db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /app/db/postgres/data
+    volumes_from:
+      - data
+    ports:
+      - $RAILS_PORT:$RAILS_PORT
+  front:
+    build:
+      context: ../front
+      dockerfile: docker/Dockerfile
+    ports:
+     - "3010:3010"
+    volumes_from:
+      - data
+    ports:
+     - $NODE_PORT:${NODE_PORT}
+    environment:
+      NODE_ENV: ${NODE_ENV}

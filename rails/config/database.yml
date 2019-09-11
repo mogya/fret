@@ -1,0 +1,32 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: fret_development
+  username: db_user
+  #password:
+  host: db
+  #port: 5432
+  #schema_search_path: myapp,sharedapp,public
+
+  # Minimum log levels, in increasing order:
+  #   debug5, debug4, debug3, debug2, debug1,
+  #   log, notice, warning, error, fatal, and panic
+  # Defaults to warning.
+  #min_messages: notice
+
+test:
+  <<: *default
+  database: fret_test
+  username: db_user
+  #password:
+  host: db
+
+production:
+  <<: *default
+  database: fret_production
+  username: fret
+  password: <%= ENV['FRET_DATABASE_PASSWORD'] %>
